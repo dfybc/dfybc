@@ -1,6 +1,7 @@
 ## 欢迎来到我的GitHub
 这个是我的GitHub主页，在这里我记录了一些个人的学习代码等。
-如果对于你帮助，可以给我点一杯咖啡~~
+如果对于你帮助，可以给我点一杯咖啡~~  
+
 <img src="https://github.com/dfybc/dfybc/blob/main/images/%E5%BE%AE%E4%BF%A1%E4%BB%98%E6%AC%BE%E7%A0%81.png" width="200" height="200" alt="微信付款码/>
 
 <!--
