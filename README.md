@@ -1,4 +1,7 @@
-## Hi there 👋
+## 欢迎来到我的GitHub
+这个是我的GitHub主页，在这里我记录了一些个人的学习代码等。
+如果对于你帮助，可以给我点一杯咖啡~~
+<img src="./images/微信付款码.png" width="200" height="200" alt="微信付款码/>
 
 <!--
 **dfybc/dfybc** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
