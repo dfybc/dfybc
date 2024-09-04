@@ -1,6 +1,7 @@
 import requests
+from config import HEFENG_KEY
 
-url = 'https://devapi.qweather.com/v7/weather/now?&key=95e2b3b229784a6ca5eeb7faa3c42ddf&location=101210101'
+url = f'https://devapi.qweather.com/v7/weather/now?&key={HEFENG_KEY}&location=101210101'
 weather_data = requests.get(url).json()
 weather_data = weather_data['now']
 print('天气：' + weather_data['text'])

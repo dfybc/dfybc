@@ -5,11 +5,12 @@ import urllib
 from hashlib import md5
 
 import requests
+from config import BAIDU_TRANSLATE_APP_ID, BAIDU_TRANSLATE_SECRET_KEY
 
 
 def baiduTranslate(q, toLang):
-    appid = 'your appID'
-    secretKey = 'your secretKey'
+    appid = BAIDU_TRANSLATE_APP_ID
+    secretKey = BAIDU_TRANSLATE_SECRET_KEY
     myurl = 'https://api.fanyi.baidu.com/api/trans/vip/translate'
     fromLang = 'auto'
     salt = random.randint(32768, 65536)
@@ -34,7 +35,6 @@ def baiduTranslate(q, toLang):
     except Exception as e:
         traceback.print_exc()
         return e
-
 
 
 ret = baiduTranslate('好好学习，天天向上！', 'en')
