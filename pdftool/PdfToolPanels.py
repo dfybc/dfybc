@@ -149,6 +149,8 @@ class Img2PdfPanel ( wx.Panel ):
         self.input_dir = os.getcwd()
         self.result = ''
         self.img_suffixs = ['.jpg', '.png', '.bmp', '.jpeg']
+        self.sort_key = '文件名'
+        self.sort_type = '升序'
 
         vbox = wx.BoxSizer( wx.VERTICAL )
 
@@ -168,6 +170,31 @@ class Img2PdfPanel ( wx.Panel ):
 
         vbox.Add( hbox1, 0, wx.EXPAND, 5 )
 
+        bSizer8 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.m_staticText4 = wx.StaticText( self, wx.ID_ANY, _(u"图片按照"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText4.Wrap( -1 )
+
+        bSizer8.Add( self.m_staticText4, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+        combo_sort_keyChoices = [ _(u"文件名"), _(u"文件修改时间") ]
+        self.combo_sort_key = wx.ComboBox( self, wx.ID_ANY, _(u"文件名"), wx.DefaultPosition, wx.DefaultSize, combo_sort_keyChoices, wx.CB_READONLY )
+        self.combo_sort_key.SetSelection( 0 )
+        bSizer8.Add( self.combo_sort_key, 0, wx.ALL, 5 )
+
+        combo_sort_typeChoices = [ _(u"升序"), _(u"降序") ]
+        self.combo_sort_type = wx.ComboBox( self, wx.ID_ANY, _(u"升序"), wx.DefaultPosition, wx.DefaultSize, combo_sort_typeChoices, wx.CB_READONLY )
+        self.combo_sort_type.SetSelection( 0 )
+        bSizer8.Add( self.combo_sort_type, 0, wx.ALL, 5 )
+
+        self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, _(u"排序"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText5.Wrap( -1 )
+
+        bSizer8.Add( self.m_staticText5, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5 )
+
+
+        vbox.Add( bSizer8, 0, wx.EXPAND, 5 )
+
         hbox2 = wx.BoxSizer( wx.VERTICAL )
 
         self.btn_merge = wx.Button( self, wx.ID_ANY, _(u"开始合成PDF"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -185,6 +212,8 @@ class Img2PdfPanel ( wx.Panel ):
 
         # Connect Events
         self.btn_chdir.Bind( wx.EVT_BUTTON, self.chg_input_dir )
+        self.combo_sort_key.Bind( wx.EVT_COMBOBOX, self.set_sort_key )
+        self.combo_sort_type.Bind( wx.EVT_COMBOBOX, self.set_sort_type )
         self.btn_merge.Bind( wx.EVT_BUTTON, self.merge_pdf )
 
     def __del__( self ):
@@ -199,6 +228,14 @@ class Img2PdfPanel ( wx.Panel ):
             print(self.input_dir)
             self.update()
         dlg.Destroy()
+		
+    def set_sort_key( self, event ):
+        print('set_sort_key:', event.GetString())
+        self.sort_key = event.GetString()
+
+    def set_sort_type( self, event ):
+        print('set_sort_type:', event.GetString())
+        self.sort_type = event.GetString()
 
     def merge_pdf( self, event ):
         try:
@@ -206,6 +243,11 @@ class Img2PdfPanel ( wx.Panel ):
             for file in os.listdir(self.input_dir):
                 if os.path.isfile(os.path.join(self.input_dir, file)) and os.path.splitext(file)[1].lower() in self.img_suffixs:
                     image_files.append(os.path.join(self.input_dir, file))
+            
+            image_files.sort(key=lambda x: os.path.getmtime(x) if self.sort_key == _(u"文件修改时间") else x,
+                             reverse=True if self.sort_type == _(u"降序") else False)
+            if len(image_files) == 0:
+                raise Exception('目录下没有图片文件！')
 
             output_pdf_path = os.path.join(os.path.dirname(self.input_dir), "output.pdf")
 

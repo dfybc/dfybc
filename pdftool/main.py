@@ -1,5 +1,4 @@
 import wx
-# from pdf2imgpanel import Pdf2ImgPanel
 from PdfToolPanels import Pdf2ImgPanel, Img2PdfPanel
 
 app = wx.App()
