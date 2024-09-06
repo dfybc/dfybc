@@ -1,5 +1,4 @@
 import base64
-import os
 from pathlib import Path
 
 import requests
@@ -15,11 +14,18 @@ def get_access_token():
     params = {"grant_type": "client_credentials", "client_id": BAIDU_AI_API_KEY, "client_secret": BAIDU_AI_SECRET_KEY}
     return str(requests.post(url, params=params).json().get("access_token"))
 
-def getOCR(imgurl):
+
+def getOCR(imgurl, type='general_basic'):
     """
-    百度通用文字识别（标准版）
+    百度文字识别
+    type: 识别类型
+    general_basic: 通用文字识别（标准版）
+    handwriting: 手写文字识别
+    numbers: 数字识别
+    
+
     """
-    request_url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic"
+    request_url = f"https://aip.baidubce.com/rest/2.0/ocr/v1/{type}"
     # 二进制方式打开图片文件
     f = open(imgurl, 'rb')
     img = base64.b64encode(f.read())
@@ -27,19 +33,16 @@ def getOCR(imgurl):
     request_url = request_url + "?access_token=" + get_access_token()
     headers = {'content-type': 'application/x-www-form-urlencoded'}
     response = requests.post(request_url, data=params, headers=headers)
-    ret = ''
     # print(response.json())
     if 'error_msg' in response.json():
         return response.json()['error_msg']
     else:
-        words_result = response.json()['words_result']
-        for word in words_result:
-            ret += word['words']
-        return ret
+        return response.json()['words_result']
 
 
 if __name__ == '__main__':
-    # imgurl = os.path.dirname(__file__)
-    imgurl = Path(__file__).parent.parent / 'images' / '微信付款码.png'
-    print(getOCR(imgurl))
-    # print(imgurl)
+    imgurl = Path(__file__).parents[1] / 'images' / '微信付款码.png'
+    print(getOCR(imgurl, type='numbers'))
+
+    # for a in Path(__file__).parents:
+    #     print(a)

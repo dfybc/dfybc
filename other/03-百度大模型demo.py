@@ -33,7 +33,7 @@ def chat(prompt):
             }
         ]
     })
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, data=payload)
     if 'error_msg' in response.json():
         return response.json()["error_msg"]
     else:
@@ -57,7 +57,7 @@ def text2image(prompt):
         'Accept': 'application/json'
     }
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, data=payload)
     # print(response.text)
     if 'error_msg' in response.json():
         return response.json()["error_msg"]
@@ -85,7 +85,7 @@ def image2text(prompt, imgurl):
         "image": img_bs64
     })
 
-    response = requests.request("POST", url, headers=headers, data=payload)
+    response = requests.post(url, headers=headers, data=payload)
 
     if 'error_msg' in response.json():
         return response.json()["error_msg"]
@@ -96,5 +96,5 @@ def image2text(prompt, imgurl):
 if __name__ == '__main__':
     # img_url = text2image('傍晚时分，一只蓝色的猫在草丛中，画面中还有很多粉色的蝴蝶')
     # print(img_url)
-    # print(chat('请帮我写一首诗'))
-    print(image2text('告诉我图中有什么动物', Path(__file__).parent.parent / 'images' / 'cat.jpg'))
+    print(chat('请帮我写一首诗'))
+    # print(image2text('告诉我图中有什么动物', Path(__file__).parents[1] / 'images' / 'cat.jpg'))
