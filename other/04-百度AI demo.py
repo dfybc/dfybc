@@ -41,7 +41,8 @@ def getOCR(imgurl, type='general_basic'):
 
 
 if __name__ == '__main__':
-    imgurl = Path(__file__).parents[1] / 'images' / '微信付款码.png'
+    imgurl = Path(__file__).parent.parent / 'images' / '微信付款码.png'
+    # imgurl = r'D:\code\dfybc\images\微信付款码.png'
     print(getOCR(imgurl, type='numbers'))
 
     # for a in Path(__file__).parents:
