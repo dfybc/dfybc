@@ -9,3 +9,7 @@
 ### 02-图片合成pdf
 1. 安装依赖  
     `pip install img2pdf`
+
+### 03-拆分pdf
+1. 安装依赖  
+    `pip install PyPDF2`
