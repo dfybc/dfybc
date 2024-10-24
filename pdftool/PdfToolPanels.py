@@ -9,12 +9,13 @@
 
 import gettext
 import os
+import time
 
+import img2pdf
+import PyPDF2
 import wx
 import wx.xrc
 from pdf2image import convert_from_path
-import img2pdf
-import PyPDF2 
 
 _ = gettext.gettext
 
@@ -116,7 +117,7 @@ class Pdf2ImgPanel ( wx.Panel ):
     def convert( self, event ):
         if self.input_file_path:
             try:
-                images = convert_from_path(self.input_file_path, dpi=200,
+                images = convert_from_path(self.input_file_path, dpi=100,
                                         first_page=None, last_page=None)
                 for i, image in enumerate(images):
                     # 将图片保存到指定目录
@@ -330,8 +331,8 @@ class PdfSplit ( wx.Panel ):
 
         hbox3 = wx.BoxSizer( wx.VERTICAL )
 
-        self.btn_convert = wx.Button( self, wx.ID_ANY, _(u"开始拆分"), wx.DefaultPosition, wx.DefaultSize, 0 )
-        hbox3.Add( self.btn_convert, 0, wx.ALL, 5 )
+        self.btn_split = wx.Button( self, wx.ID_ANY, _(u"开始拆分"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        hbox3.Add( self.btn_split, 0, wx.ALL, 5 )
 
         self.textcrl_result = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY|wx.BORDER_NONE )
         hbox3.Add( self.textcrl_result, 1, wx.ALL|wx.EXPAND, 5 )
@@ -347,7 +348,7 @@ class PdfSplit ( wx.Panel ):
         self.btn_choosefile.Bind( wx.EVT_BUTTON, self.choose_file )
         self.spinCtrl_pagenum.Bind( wx.EVT_SPINCTRL, self.chg_pagenum )
         self.btn_chdir.Bind( wx.EVT_BUTTON, self.chg_output_dir )
-        self.btn_convert.Bind( wx.EVT_BUTTON, self.split )
+        self.btn_split.Bind( wx.EVT_BUTTON, self.split )
 
     def __del__( self ):
         pass
@@ -433,3 +434,85 @@ class PdfSplit ( wx.Panel ):
         self.lbl_show_choose_file.SetLabel(self.lbltxt_show_input_file_path)
         self.textctl_outputdir.SetValue('')
         self.update_result()
+
+
+###########################################################################
+## Class PdfMerge
+###########################################################################
+
+class PdfMerge ( wx.Panel ):
+
+    def __init__( self, parent, id = wx.ID_ANY, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.TAB_TRAVERSAL, name = wx.EmptyString ):
+        wx.Panel.__init__ ( self, parent, id = id, pos = pos, size = size, style = style, name = name )
+
+        self.input_dir = ''
+        self.input_file_path_list = ''
+        self.output_dir = ''
+
+        vbox = wx.BoxSizer( wx.VERTICAL )
+
+        hbox1 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.btn_choosefile = wx.Button( self, wx.ID_ANY, _(u"点击选择要合并的PDF文件"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        hbox1.Add( self.btn_choosefile, 0, wx.ALL, 5 )
+
+        self.lbl_show_choose_file = wx.StaticText( self, wx.ID_ANY, _(u"还未选择PDF文件"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.lbl_show_choose_file.Wrap( -1 )
+
+        hbox1.Add( self.lbl_show_choose_file, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+
+
+        vbox.Add( hbox1, 0, wx.EXPAND, 5 )
+
+        hbox2 = wx.BoxSizer( wx.VERTICAL )
+
+        self.btn_merge = wx.Button( self, wx.ID_ANY, _(u"开始合并"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        hbox2.Add( self.btn_merge, 0, wx.ALL, 5 )
+
+        self.textcrl_result = wx.TextCtrl( self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.TE_MULTILINE|wx.TE_READONLY|wx.BORDER_NONE )
+        hbox2.Add( self.textcrl_result, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+        vbox.Add( hbox2, 0, wx.EXPAND, 5 )
+
+
+        self.SetSizer( vbox )
+        self.Layout()
+
+        # Connect Events
+        self.btn_choosefile.Bind( wx.EVT_BUTTON, self.choose_file )
+        self.btn_merge.Bind( wx.EVT_BUTTON, self.merge )
+
+    def __del__( self ):
+        pass
+
+
+    # Virtual event handlers, override them in your derived class
+    def choose_file( self, event ):
+        dlg = wx.FileDialog(self, "选择文件", self.input_dir, "", "*.pdf;*.PDF", wx.FD_OPEN | wx.FD_MULTIPLE | wx.FD_FILE_MUST_EXIST)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.input_file_path_list = dlg.GetPaths()    # 获取文件完整路径
+            self.input_dir = dlg.GetDirectory()    # 获取文件目录
+            self.output_dir = os.path.dirname(self.input_dir)
+            
+            self.textcrl_result.SetValue('')
+            self.lbl_show_choose_file.SetLabel(f'已选择{len(self.input_file_path_list)}个文件')
+        dlg.Destroy()
+
+    def merge( self, event ):
+        merger = PyPDF2.PdfMerger()  
+        if len(self.input_file_path_list) > 1:
+            for pdf in self.input_file_path_list:  
+                with open(pdf, 'rb') as file:  
+                    merger.append(file)  
+            merge_file_path = os.path.join(self.output_dir,  '合并文件_' + time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()) + '.pdf')
+            with open(merge_file_path, 'wb') as file:  
+                merger.write(file) 
+
+            self.textcrl_result.SetValue(f'合并成功，合并文件为{merge_file_path}。')
+            self.textcrl_result.SetForegroundColour('blue')
+            # self.lbl_show_choose_file.SetLabel('还未选择PDF文件')
+        else:
+            self.textcrl_result.SetValue(f'请至少选择两个文件进行合并。')
+            self.textcrl_result.SetForegroundColour('red')
+            self.lbl_show_choose_file.SetLabel('还未选择PDF文件')
